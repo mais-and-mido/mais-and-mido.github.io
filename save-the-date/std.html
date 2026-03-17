@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Save the Date · Mais & Mahmoud</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cinzel:wght@300;400&family=Pinyon+Script&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html, body { width:100%; height:100%; overflow:hidden; background:#f9fafb; }
+canvas { position:fixed; inset:0; width:100%; height:100%; }
+
+/* ── Splash / thumbnail screen ── */
+#splash {
+  position:fixed; inset:0; z-index:50;
+  background:#fafbfc;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  transition: opacity 1.4s ease;
+}
+#splash.hide { opacity:0; pointer-events:none; }
+.sp-std {
+  font-family:'Cinzel',serif; font-weight:300;
+  font-size:clamp(10px,1.8vw,14px); letter-spacing:9px; text-transform:uppercase;
+  color:#3a78a8; margin-bottom:3vh; text-align:center;
+}
+.sp-celebrate {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:clamp(16px,2.6vw,24px); color:#4a80b0;
+  margin-bottom:3vh; text-align:center;
+}
+.sp-names {
+  font-family:'Pinyon Script',cursive;
+  font-size:clamp(44px,8.5vw,72px);
+  color:#0d3b6e; line-height:1.0; letter-spacing:2px;
+  margin-bottom:3vh; text-align:center;
+}
+.sp-amp {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:0.72em; color:#5b8db8; display:inline-block; margin:0 4px; vertical-align:middle;
+}
+.sp-div {
+  display:flex; align-items:center; gap:14px; width:min(200px,44vw);
+  margin-bottom:3vh;
+}
+.sp-div-line { flex:1; height:1px; }
+.sp-div-line--l { background:linear-gradient(to right,transparent,rgba(91,141,184,0.5)); }
+.sp-div-line--r { background:linear-gradient(to left, transparent,rgba(91,141,184,0.5)); }
+.sp-div-dot { font-size:9px; color:#5b8db8; letter-spacing:3px; }
+.sp-date {
+  font-family:'Cormorant Garamond',serif; font-weight:300;
+  font-size:clamp(18px,3.2vw,28px); letter-spacing:6px; color:#1e5080;
+  margin-bottom:1.5vh; text-align:center;
+}
+.sp-location {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:clamp(16px,2.6vw,22px); color:#3a78a8;
+  margin-bottom:1.5vh; text-align:center;
+}
+.sp-venue {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:clamp(15px,2.2vw,20px); color:#5b8db8;
+  margin-bottom:3vh; text-align:center;
+}
+.sp-formal {
+  font-family:'Cinzel',serif; font-weight:300;
+  font-size:clamp(9px,1.4vw,12px); letter-spacing:5px; text-transform:uppercase;
+  color:#4a80b0; text-align:center;
+}
+
+/* White flash overlay — shown after splash, fades out before animation */
+#white-flash {
+  position:fixed; inset:0; z-index:40;
+  background:#ffffff;
+  opacity:0; pointer-events:none;
+  transition: opacity 0.6s ease;
+}
+#white-flash.show  { opacity:1; pointer-events:none; }
+#white-flash.fade  { opacity:0; }
+
+#text-layer {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding-top: clamp(72px, 16vh, 140px);
+  pointer-events:none; z-index:10;
+}
+.t-std {
+  font-family:'Cinzel',serif; font-weight:300;
+  font-size:clamp(11px,2vw,14px); letter-spacing:7px; text-transform:uppercase;
+  color:#3a78a8; opacity:0; animation:fadeUp 1.4s 4.0s ease forwards;
+  margin-bottom:3vh; text-align:center;
+}
+.t-celebrate {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:clamp(18px,2.8vw,26px); color:#4a80b0; letter-spacing:1px;
+  opacity:0; animation:fadeUp 1.4s 4.6s ease forwards;
+  margin-bottom:3vh; text-align:center;
+}
+.t-names {
+  font-family:'Pinyon Script',cursive;
+  font-size:clamp(44px,8.5vw,72px);
+  color:#0d3b6e; line-height:1.0; letter-spacing:2px;
+  opacity:0; animation:fadeUp 1.6s 5.4s ease forwards;
+  margin-bottom:3vh; text-align:center;
+}
+.t-amp {
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic; font-weight:300;
+  font-size:0.72em; color:#5b8db8;
+  display:inline-block; margin:0 4px; vertical-align:middle;
+}
+.t-div {
+  display:flex; align-items:center; gap:14px; width:min(200px,44vw);
+  opacity:0; animation:fadeIn 1.4s 6.4s ease forwards;
+  margin-bottom:3vh;
+}
+.t-div-line { flex:1; height:1px; }
+.t-div-line--l { background:linear-gradient(to right,transparent,rgba(91,141,184,0.5)); }
+.t-div-line--r { background:linear-gradient(to left,transparent,rgba(91,141,184,0.5)); }
+.t-div-dot { font-size:9px; color:#5b8db8; letter-spacing:3px; }
+.t-date {
+  font-family:'Cormorant Garamond',serif; font-weight:300;
+  font-size:clamp(20px,3.4vw,30px); letter-spacing:6px; color:#1e5080;
+  opacity:0; animation:fadeUp 1.4s 7.0s ease forwards;
+  margin-bottom:1.5vh; text-align:center;
+}
+.t-location {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:clamp(18px,2.8vw,24px); color:#3a78a8; letter-spacing:2px;
+  opacity:0; animation:fadeUp 1.4s 7.6s ease forwards;
+  margin-bottom:1.5vh; text-align:center;
+}
+.t-venue {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-weight:300;
+  font-size:clamp(17px,2.6vw,23px); color:#5b8db8;
+  opacity:0; animation:fadeUp 1.4s 8.2s ease forwards;
+  margin-bottom:3vh; text-align:center;
+}
+.t-formal {
+  font-family:'Cinzel',serif; font-weight:300;
+  font-size:clamp(10px,1.5vw,13px); letter-spacing:5px; text-transform:uppercase;
+  color:#4a80b0; opacity:0; animation:fadeUp 1.4s 8.8s ease forwards;
+  text-align:center;
+}
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.t-pyramids {
+  width: min(92vw, 420px);
+  opacity:0; animation:fadeIn 2s 9.6s ease forwards;
+  margin-top: 1vh;
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="white-flash"></div>
+
+<!-- Splash / thumbnail screen -->
+<div id="splash">
+  <div class="sp-std">Save the Date</div>
+  <div class="sp-celebrate">To celebrate the wedding of</div>
+  <div class="sp-names">Mais <span class="sp-amp">&amp;</span> Mahmoud</div>
+  <div class="sp-div">
+    <div class="sp-div-line sp-div-line--l"></div>
+    <div class="sp-div-dot">✦</div>
+    <div class="sp-div-line sp-div-line--r"></div>
+  </div>
+  <div class="sp-date">08 · 08 · 2026</div>
+  <div class="sp-location">Cairo, Egypt</div>
+  <div class="sp-venue">Al Khalifa Ballroom · Marriott Mena House</div>
+  <div class="sp-formal">Formal Invitation to Follow</div>
+</div>
+<div id="text-layer">
+  <div class="t-std">Save the Date</div>
+  <div class="t-celebrate">To celebrate the wedding of</div>
+  <div class="t-names">Mais <span class="t-amp">&amp;</span> Mahmoud</div>
+  <div class="t-div">
+    <div class="t-div-line t-div-line--l"></div>
+    <div class="t-div-dot">✦</div>
+    <div class="t-div-line t-div-line--r"></div>
+  </div>
+  <div class="t-date">08 · 08 · 2026</div>
+  <div class="t-location">Cairo, Egypt</div>
+  <div class="t-venue">Al Khalifa Ballroom · Marriott Mena House</div>
+  <div class="t-formal">Formal Invitation to Follow</div>
+  <div class="t-pyramids">
+    <svg viewBox="0 0 400 180" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+      <defs>
+        <!-- Great pyramid gradients -->
+        <linearGradient id="p1s" x1="0%" y1="100%" x2="60%" y2="0%">
+          <stop offset="0%" stop-color="#b8d4e8" stop-opacity="0.9"/>
+          <stop offset="40%" stop-color="#85aed0" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#1e5080" stop-opacity="0.7"/>
+        </linearGradient>
+        <linearGradient id="p1l" x1="50%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#d8ecf8" stop-opacity="0.85"/>
+          <stop offset="50%" stop-color="#b8d4e8" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#85aed0" stop-opacity="0.55"/>
+        </linearGradient>
+        <!-- Middle pyramid -->
+        <linearGradient id="p2s" x1="0%" y1="100%" x2="60%" y2="0%">
+          <stop offset="0%" stop-color="#b8d4e8" stop-opacity="0.78"/>
+          <stop offset="100%" stop-color="#1e5080" stop-opacity="0.62"/>
+        </linearGradient>
+        <linearGradient id="p2l" x1="50%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#d8ecf8" stop-opacity="0.72"/>
+          <stop offset="100%" stop-color="#85aed0" stop-opacity="0.5"/>
+        </linearGradient>
+        <!-- Small pyramid -->
+        <linearGradient id="p3s" x1="0%" y1="100%" x2="60%" y2="0%">
+          <stop offset="0%" stop-color="#b8d4e8" stop-opacity="0.65"/>
+          <stop offset="100%" stop-color="#1e5080" stop-opacity="0.52"/>
+        </linearGradient>
+        <linearGradient id="p3l" x1="50%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#d8ecf8" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="#85aed0" stop-opacity="0.42"/>
+        </linearGradient>
+        <!-- Base mist -->
+        <linearGradient id="mist" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#b8d4e8" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#edf5fc" stop-opacity="0.06"/>
+        </linearGradient>
+        <filter id="blur-soft">
+          <feGaussianBlur stdDeviation="1.2"/>
+        </filter>
+      </defs>
+
+      <!-- Ground mist -->
+      <ellipse cx="200" cy="178" rx="200" ry="18" fill="url(#mist)"/>
+
+      <!-- ── Great Pyramid (cx=118, base=178, w=190, h=128) ── -->
+      <ellipse cx="118" cy="114" rx="70" ry="55" fill="#b8d4e8" fill-opacity="0.10" filter="url(#blur-soft)"/>
+      <polygon points="118,50 23,178 118,178" fill="url(#p1s)"/>
+      <polygon points="118,50 23,178 118,178" fill="#d8ecf8" fill-opacity="0.08"/>
+      <polygon points="118,50 118,178 213,178" fill="url(#p1l)"/>
+      <polygon points="118,50 23,178 213,178" fill="none" stroke="#1e5080" stroke-width="0.6" stroke-opacity="0.2" stroke-linejoin="round"/>
+      <line x1="70"  y1="82"  x2="166" y2="82"  stroke="#1e5080" stroke-width="0.4" stroke-opacity="0.07"/>
+      <line x1="55"  y1="107" x2="181" y2="107" stroke="#1e5080" stroke-width="0.4" stroke-opacity="0.07"/>
+      <line x1="42"  y1="133" x2="194" y2="133" stroke="#1e5080" stroke-width="0.35" stroke-opacity="0.06"/>
+      <line x1="32"  y1="155" x2="204" y2="155" stroke="#1e5080" stroke-width="0.3" stroke-opacity="0.05"/>
+      <circle cx="118" cy="50" r="8" fill="#85aed0" fill-opacity="0.25" filter="url(#blur-soft)"/>
+      <circle cx="118" cy="50" r="3" fill="white" fill-opacity="0.45" filter="url(#blur-soft)"/>
+
+      <!-- ── Middle Pyramid (cx=248, base=178, w=138, h=98) ── -->
+      <ellipse cx="248" cy="129" rx="50" ry="40" fill="#b8d4e8" fill-opacity="0.08" filter="url(#blur-soft)"/>
+      <polygon points="248,80 179,178 248,178" fill="url(#p2s)"/>
+      <polygon points="248,80 248,178 317,178" fill="url(#p2l)"/>
+      <polygon points="248,80 179,178 317,178" fill="none" stroke="#1e5080" stroke-width="0.5" stroke-opacity="0.18" stroke-linejoin="round"/>
+      <line x1="214" y1="105" x2="282" y2="105" stroke="#1e5080" stroke-width="0.35" stroke-opacity="0.06"/>
+      <line x1="200" y1="131" x2="296" y2="131" stroke="#1e5080" stroke-width="0.3" stroke-opacity="0.05"/>
+      <line x1="190" y1="154" x2="306" y2="154" stroke="#1e5080" stroke-width="0.3" stroke-opacity="0.05"/>
+      <circle cx="248" cy="80" r="5" fill="#85aed0" fill-opacity="0.2" filter="url(#blur-soft)"/>
+
+      <!-- ── Small Pyramid (cx=333, base=178, w=90, h=64) ── -->
+      <polygon points="333,114 288,178 333,178" fill="url(#p3s)"/>
+      <polygon points="333,114 333,178 378,178" fill="url(#p3l)"/>
+      <polygon points="333,114 288,178 378,178" fill="none" stroke="#1e5080" stroke-width="0.4" stroke-opacity="0.15" stroke-linejoin="round"/>
+      <line x1="311" y1="137" x2="355" y2="137" stroke="#1e5080" stroke-width="0.3" stroke-opacity="0.05"/>
+      <line x1="301" y1="157" x2="365" y2="157" stroke="#1e5080" stroke-width="0.3" stroke-opacity="0.05"/>
+      <circle cx="333" cy="114" r="3.5" fill="#85aed0" fill-opacity="0.18" filter="url(#blur-soft)"/>
+
+      <!-- Base mist overlay -->
+      <rect x="0" y="162" width="400" height="18" fill="url(#mist)" filter="url(#blur-soft)"/>
+    </svg>
+  </div>
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+let W, H, DPR=1, t=0, raf, startTime=null, lastTs=0;
+let fireworks=[], lastFW=0;
+let paperCanvas=null;
+
+function resize(){
+  DPR = window.devicePixelRatio || 1;
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(DPR, DPR);
+  buildPaper();
+}
+window.addEventListener('resize',resize); resize();
+
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ease=t=>t<0.5?2*t*t:-1+(4-2*t)*t;
+
+// ── Palette ── blue & white only
+const P={
+  navy:'#0d3b6e', mid:'#1e5080', blue:'#5b8db8',
+  light:'#85aed0', pale:'#b8d4e8', blush:'#d8ecf8', mist:'#edf5fc',
+  fw:['#5b8db8','#85aed0','#c8dff0','#0d3b6e','#ddeaf5','#ffffff','#a0c8e8','#2e6898'],
+};
+
+function rgb(hex,a=1){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// Soft radial wash
+function wash(x,y,rx,ry,col,a=1,rot=0){
+  if(a<=0||rx<=0) return;
+  ctx.save(); ctx.translate(x,y); ctx.rotate(rot);
+  const g=ctx.createRadialGradient(0,0,0,0,0,Math.max(rx,ry));
+  g.addColorStop(0,rgb(col,a));
+  g.addColorStop(0.45,rgb(col,a*0.5));
+  g.addColorStop(0.75,rgb(col,a*0.18));
+  g.addColorStop(1,rgb(col,0));
+  ctx.fillStyle=g;
+  ctx.scale(rx/Math.max(rx,ry),ry/Math.max(rx,ry));
+  ctx.beginPath(); ctx.arc(0,0,Math.max(rx,ry),0,Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ══════════════════════════════════
+// PAPER TEXTURE  (built once)
+// ══════════════════════════════════
+function buildPaper(){
+  paperCanvas=document.createElement('canvas');
+  paperCanvas.width=W; paperCanvas.height=H;
+  const pc=paperCanvas.getContext('2d');  pc.fillStyle='#fafbfc'; pc.fillRect(0,0,W,H);
+  // grain
+  for(let i=0;i<W*H*0.008;i++){
+    const v=205+Math.floor(Math.random()*30);
+    pc.globalAlpha=0.014+Math.random()*0.022;
+    pc.fillStyle=`rgb(${v},${v+3},${v+6})`;
+    pc.beginPath(); pc.arc(Math.random()*W,Math.random()*H,0.4+Math.random()*0.8,0,Math.PI*2); pc.fill();
+  }
+  pc.globalAlpha=1;
+  // horizontal fibres
+  for(let i=0;i<H*0.3;i++){
+    const y=Math.random()*H;
+    pc.strokeStyle=`rgba(200,210,218,${0.006+Math.random()*0.01})`;
+    pc.lineWidth=0.4+Math.random()*0.3;
+    pc.beginPath(); pc.moveTo(0,y); pc.lineTo(W,y); pc.stroke();
+  }
+  // vertical cross-fibres
+  for(let i=0;i<W*0.04;i++){
+    const x=Math.random()*W;
+    pc.strokeStyle=`rgba(200,210,218,${0.003+Math.random()*0.006})`;
+    pc.lineWidth=0.3;
+    pc.beginPath(); pc.moveTo(x,0); pc.lineTo(x,H); pc.stroke();
+  }
+}
+
+// ══════════════════════════════════
+// PYRAMIDS  – clearly visible
+// ══════════════════════════════════
+function drawPyramids(progress){
+  // Position base just below the "Formal Invitation" text element
+  const formalEl = document.querySelector('.t-formal');
+  const base = formalEl
+    ? Math.min(formalEl.getBoundingClientRect().bottom + H * 0.04, H * 0.82)
+    : H * 0.72;
+  const sc = clamp(W/900, 0.62, 1.6);  // slightly bigger minimum
+
+  // Each pyramid: solid fills first, then watercolour wash layered on top
+  function pyramid(cx, pw, ph, shadowAlpha, lightAlpha){
+    const apex_x = cx;
+    const apex_y = base - ph;
+    const left_x = cx - pw/2;
+    const right_x= cx + pw/2;
+
+    // ── 1. Solid shadow face (left) ──────────────────────
+    ctx.save();
+    ctx.globalAlpha = shadowAlpha * progress;
+    const sg = ctx.createLinearGradient(left_x, base, apex_x, apex_y);
+    sg.addColorStop(0, rgb(P.pale,  0.9));
+    sg.addColorStop(0.4,rgb(P.light,0.8));
+    sg.addColorStop(1, rgb(P.mid,   0.7));
+    ctx.fillStyle = sg;
+    ctx.beginPath();
+    ctx.moveTo(apex_x, apex_y);
+    ctx.lineTo(left_x,  base);
+    ctx.lineTo(cx,       base);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // ── 2. Solid light face (right) ──────────────────────
+    ctx.save();
+    ctx.globalAlpha = lightAlpha * progress;
+    const lg = ctx.createLinearGradient(cx, base, right_x, apex_y);
+    lg.addColorStop(0, rgb(P.blush, 0.85));
+    lg.addColorStop(0.5,rgb(P.pale, 0.7));
+    lg.addColorStop(1, rgb(P.light, 0.55));
+    ctx.fillStyle = lg;
+    ctx.beginPath();
+    ctx.moveTo(apex_x, apex_y);
+    ctx.lineTo(cx,      base);
+    ctx.lineTo(right_x, base);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // ── 3. Watercolour edge outline ──────────────────────
+    ctx.save();
+    ctx.globalAlpha = progress * 0.25;
+    ctx.strokeStyle = P.mid;
+    ctx.lineWidth = 0.8;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(apex_x, apex_y);
+    ctx.lineTo(left_x,  base);
+    ctx.lineTo(right_x, base);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 4. Horizontal stone lines — faint ──────────────
+    ctx.save();
+    ctx.globalAlpha = progress * 0.08;
+    ctx.strokeStyle = P.mid;
+    ctx.lineCap = 'round';
+    [0.25,0.45,0.62,0.76,0.88].forEach(f=>{
+      ctx.lineWidth = 0.5 + (1-f)*0.6;
+      const y  = apex_y + ph*f;
+      const xl = apex_x - (pw/2)*f;
+      const xr = apex_x + (pw/2)*f;
+      ctx.beginPath(); ctx.moveTo(xl,y); ctx.lineTo(xr,y); ctx.stroke();
+    });
+    ctx.restore();
+
+    // ── 5. Watercolour blooms ─ wet-on-wet softening ────
+    // apex concentration
+    wash(apex_x, apex_y,   pw*0.07, ph*0.09, P.light, progress*0.45);
+    wash(apex_x, apex_y,   pw*0.03, ph*0.04, '#ffffff', progress*0.6);
+    // base mist
+    wash(cx, base, pw*0.5, H*0.05, P.blush, progress*0.45);
+    wash(cx, base, pw*0.3, H*0.03, P.mist,  progress*0.35);
+
+    // ── 6. Watercolour wash over faces (softens) ────────
+    ctx.save();
+    ctx.globalAlpha = progress * 0.12;
+    ctx.fillStyle = rgb(P.blush, 0.6);
+    ctx.beginPath();
+    ctx.moveTo(apex_x,apex_y); ctx.lineTo(left_x,base); ctx.lineTo(right_x,base); ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Great Pyramid  (left, tallest)
+  pyramid(W*0.34, 380*sc, 235*sc, 0.88, 0.82);
+  // Middle Pyramid
+  pyramid(W*0.57, 278*sc, 172*sc, 0.78, 0.72);
+  // Small Pyramid
+  pyramid(W*0.71, 188*sc, 116*sc, 0.65, 0.60);
+
+  // Ground line — anchors pyramids
+  ctx.save();
+  ctx.globalAlpha = progress * 0.18;
+  const gg = ctx.createLinearGradient(0,base,0,H);
+  gg.addColorStop(0, rgb(P.pale, 0.7));
+  gg.addColorStop(0.5,rgb(P.blush,0.4));
+  gg.addColorStop(1, rgb(P.mist, 0.15));
+  ctx.fillStyle=gg; ctx.fillRect(0,base,W,H-base);
+  ctx.restore();
+
+  // Scattered pigment dots — watercolour characteristic
+  ctx.save();
+  [[0.08,0.83],[0.18,0.87],[0.42,0.85],[0.60,0.88],[0.74,0.84],[0.88,0.87]].forEach(([sx,sy])=>{
+    ctx.globalAlpha = progress*0.10;
+    ctx.fillStyle = P.light;
+    ctx.beginPath(); ctx.arc(W*sx,H*sy,(1.5+Math.random()*2)*sc,0,Math.PI*2); ctx.fill();
+  });
+  ctx.restore();
+}
+
+// ══════════════════════════════════
+// ATMOSPHERE — loose washes
+// ══════════════════════════════════
+function drawAtmosphere(p){
+  // very faint sky gradient
+  const sg=ctx.createLinearGradient(0,0,0,H*0.55);
+  sg.addColorStop(0,`rgba(200,225,242,${0.22*p})`);
+  sg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=sg; ctx.fillRect(0,0,W,H*0.55);
+
+  // corner blooms
+  wash(W*0.03, H*0.04, W*0.20, H*0.14, P.pale,  0.18*p);
+  wash(W*0.97, H*0.04, W*0.18, H*0.12, P.blush, 0.20*p);
+  wash(W*0.04, H*0.96, W*0.16, H*0.10, P.pale,  0.15*p);
+  wash(W*0.96, H*0.96, W*0.15, H*0.09, P.blush, 0.14*p);
+  // mid-page soft halos
+  wash(W*0.16, H*0.52, W*0.12, H*0.08, P.mist, 0.35*p);
+  wash(W*0.84, H*0.50, W*0.11, H*0.07, P.mist, 0.30*p);
+}
+
+// ══════════════════════════════════
+// FIREWORKS
+// ══════════════════════════════════
+class Firework {
+  constructor(){this.reset();}
+  reset(){
+    const side=Math.random()>0.5;
+    this.x=W*(side?0.08+Math.random()*0.22:0.70+Math.random()*0.22);
+    this.y=H*(0.04+Math.random()*0.22);
+    this.age=0; this.life=1.6+Math.random()*1.1;
+    const c1=P.fw[Math.floor(Math.random()*P.fw.length)];
+    const c2=P.fw[Math.floor(Math.random()*P.fw.length)];
+    const n=26+Math.floor(Math.random()*14);
+    this.pts=[];
+    for(let i=0;i<n;i++){
+      const a=(Math.PI*2/n)*i+(Math.random()-0.5)*0.25;
+      this.pts.push({a,spd:(30+Math.random()*65)*clamp(W/900,0.5,1.5),
+        col:Math.random()>0.35?c1:c2,trail:[],sz:0.9+Math.random()*1.5});
+    }
+    for(let i=0;i<5;i++)
+      this.pts.push({a:Math.random()*Math.PI*2,spd:8+Math.random()*18,
+        col:'#ffffff',trail:[],sz:0.7});
+  }
+  draw(dt){
+    this.age+=dt;
+    const p=clamp(this.age/this.life,0,1);
+    const ep=ease(p);
+    const fade=p<0.3?p/0.3:1-(p-0.3)/0.7;
+    this.pts.forEach(pt=>{
+      const d=1-ep*ep;
+      const px=this.x+Math.cos(pt.a)*pt.spd*ep*1.3;
+      const py=this.y+Math.sin(pt.a)*pt.spd*ep*1.3+ep*ep*45;
+      pt.trail.push([px,py]); if(pt.trail.length>5)pt.trail.shift();
+      if(pt.trail.length>1){
+        ctx.save();
+        ctx.strokeStyle=rgb(pt.col,fade*d*0.6);
+        ctx.lineWidth=pt.sz*(1-ep*0.4); ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(pt.trail[0][0],pt.trail[0][1]);
+        pt.trail.forEach(([tx,ty])=>ctx.lineTo(tx,ty)); ctx.stroke();
+        ctx.restore();
+      }
+      wash(px,py,pt.sz*2.2,pt.sz*2.2,pt.col,fade*d*0.8);
+    });
+    if(p<0.12) wash(this.x,this.y,30*(1-p/0.12),30*(1-p/0.12),'#ffffff',(1-p/0.12)*0.35);
+    return p<1;
+  }
+}
+
+// ══════════════════════════════════
+// PAPER  composite (normal blend — not multiply)
+// ══════════════════════════════════
+function drawPaper(){
+  if(!paperCanvas) return;
+  ctx.save();
+  ctx.globalCompositeOperation='source-over';
+  ctx.globalAlpha=0.18;   // very subtle, doesn't crush colour
+  ctx.drawImage(paperCanvas,0,0);
+  ctx.restore();
+}
+
+// Soft edge vignette
+function vignette(){
+  const e=clamp(W*0.09,20,65);
+  [
+    [0,0,e,0],[W,0,W-e,0],[0,0,0,e*0.7],[0,H,0,H-e*0.7]
+  ].forEach(([x1,y1,x2,y2])=>{
+    const g=ctx.createLinearGradient(x1,y1,x2,y2);
+    g.addColorStop(0,'rgba(176,196,214,0.13)');
+    g.addColorStop(1,'rgba(176,196,214,0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+  });
+}
+
+// ══════════════════════════════════
+// MAIN LOOP
+// ══════════════════════════════════
+function drawFrame(ts){
+  if(!startTime){startTime=ts;lastTs=ts;}
+  const dt=Math.min((ts-lastTs)/1000,0.05);
+  t=(ts-startTime)/1000; lastTs=ts;
+
+  // reset transform each frame (DPR scale reapplied)
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+  // White card base
+  ctx.fillStyle='#fafbfc'; ctx.fillRect(0,0,W,H);
+
+  const p=ease(clamp(t/2.2,0,1));
+
+  drawAtmosphere(p);
+
+  // Fireworks
+  fireworks=fireworks.filter(fw=>fw.draw(dt));
+  lastFW+=dt;
+  if(t>0.2&&lastFW>1.0+Math.random()*0.9){
+    fireworks.push(new Firework());
+    // occasionally launch a second one simultaneously
+    if(Math.random()>0.45) fireworks.push(new Firework());
+    lastFW=0;
+  }
+
+  // Paper texture on top (light, source-over)
+  drawPaper();
+  vignette();
+
+  raf=requestAnimationFrame(drawFrame);
+}
+
+function init(){
+  cancelAnimationFrame(raf);
+  startTime=null;lastTs=0;t=0;fireworks=[];lastFW=0;
+
+  const splash     = document.getElementById('splash');
+  const whiteFlash = document.getElementById('white-flash');
+
+  // Reset state
+  splash.classList.remove('hide');
+  whiteFlash.classList.remove('show','fade');
+
+  // Sequence:
+  // 0s      — splash thumbnail visible
+  // 2.5s    — splash fades out, white flash fades IN
+  // 3.2s    — white flash fades OUT → canvas animation starts
+  // 4.0s+   — text elements begin fading in one by one
+  setTimeout(()=>{ splash.classList.add('hide'); }, 2500);
+  setTimeout(()=>{ whiteFlash.classList.add('show'); }, 2800);
+  setTimeout(()=>{
+    whiteFlash.classList.add('fade');
+    // Start the canvas animation
+    startTime=null; lastTs=0;
+    raf=requestAnimationFrame(drawFrame);
+  }, 3600);
+
+  // seed opening firework burst (timed to fire just as canvas appears)
+  for(let i=0;i<4;i++){
+    const fw=new Firework();
+    fw.age=-0.3*i;
+    fireworks.push(fw);
+  }
+
+  document.querySelectorAll('#text-layer > *').forEach(el=>{
+    el.style.animation='none'; el.offsetHeight; el.style.animation='';
+  });
+}
+
+init();
+</script>
+</body>
+</html>
