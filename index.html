@@ -475,6 +475,22 @@
       font-style: italic;
     }
 
+    .schedule-scroll-hint {
+      display: none;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+      margin: -32px 0 24px;
+      opacity: 0.6;
+    }
+
+    @media (max-width: 640px) {
+      .schedule-scroll-hint { display: block; }
+    }
+
     /* ── SCHEDULE ── */
     .schedule-section {
       max-width: 680px;
@@ -1465,13 +1481,7 @@
       <div class="day-tabs-scroll">
       <div class="day-tabs">
 
-        <button class="day-tab active" data-day="day-aug2">
-          <span class="day-tab-month">Aug</span>
-          <span class="day-tab-num">2</span>
-          <span class="day-tab-dow">Sun</span>
-        </button>
-
-        <button class="day-tab" data-day="day-aug3">
+        <button class="day-tab active" data-day="day-aug3">
           <span class="day-tab-month">Aug</span>
           <span class="day-tab-num">3</span>
           <span class="day-tab-dow">Mon</span>
@@ -1518,26 +1528,16 @@
       </div><!-- /.day-tabs-scroll -->
     </div><!-- /.day-tabs-wrapper -->
 
-    <!-- Aug 2 -->
-    <div class="day-panel active" id="day-aug2">
-      <p class="day-panel-title">Sunday, August 2nd</p>
+    <p class="schedule-scroll-hint">← Swipe to see all days →</p>
+
+    <!-- Aug 3 -->
+    <div class="day-panel active" id="day-aug3">
+      <p class="day-panel-title">Monday, August 3rd</p>
       <div class="timeline">
         <div class="timeline-item">
           <p class="timeline-time">All Day</p>
           <p class="timeline-event">Guests Begin to Arrive</p>
           <p class="timeline-desc">Welcome to Cairo! Settle in and make yourself at home</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Aug 3 -->
-    <div class="day-panel" id="day-aug3">
-      <p class="day-panel-title">Monday, August 3rd</p>
-      <div class="timeline">
-        <div class="timeline-item">
-          <p class="timeline-time">Stay Tuned</p>
-          <p class="timeline-event">To Be Announced</p>
-          <p class="timeline-desc">We're putting the finishing touches on Monday's plans · Details coming soon</p>
         </div>
       </div>
     </div>
