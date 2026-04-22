@@ -135,6 +135,7 @@
       display: block;
       font-family: 'Cinzel', serif;
       font-size: 11px;
+      font-weight: 600;
       letter-spacing: 3px;
       text-transform: uppercase;
       color: var(--warm-gray);
@@ -1841,17 +1842,33 @@
   const links = document.querySelectorAll('.nav-list a');
   const sections = document.querySelectorAll('.section');
 
+  function switchTab(tab) {
+    links.forEach(l => l.classList.remove('active'));
+    sections.forEach(s => s.classList.remove('active'));
+    const link = document.querySelector(`.nav-list a[data-tab="${tab}"]`);
+    const section = document.getElementById('tab-' + tab);
+    if (link) link.classList.add('active');
+    if (section) section.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   links.forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
       const tab = link.dataset.tab;
-      links.forEach(l => l.classList.remove('active'));
-      sections.forEach(s => s.classList.remove('active'));
-      link.classList.add('active');
-      document.getElementById('tab-' + tab).classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.location.hash = tab === 'home' ? '' : tab;
+      switchTab(tab);
     });
   });
+
+  // ── URL routing on load (#rsvp, #story, etc.) ──
+  (function() {
+    const hash = window.location.hash.replace('#', '').toLowerCase();
+    const validTabs = ['home', 'story', 'schedule', 'travel', 'rsvp'];
+    if (hash && validTabs.includes(hash)) {
+      switchTab(hash);
+    }
+  })();
 
   // ── Countdown ──
   function updateCountdown() {
